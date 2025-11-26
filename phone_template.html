@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>手机容器模板</title>
+    <style>
+        /* ========== 基础变量 ========== */
+        :root {
+            --primary-blue: #2563EB;
+            --bg-color: #F8FAFC;
+            --line-color: #CBD5E1;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-secondary: #64748B;
+            --high-score: #059669; /* 绿色 */
+            --med-score: #2563EB;  /* 蓝色 */
+            --low-score: #D97706;  /* 橙色 */
+        }
+
+        /* ========== 全局重置 ========== */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; 
+        }
+
+        /* ========== 页面背景 ========== */
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* ========== 手机外壳容器 ========== */
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            height: 844px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%);
+            position: relative;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ========== 状态栏 ========== */
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            z-index: 100;
+        }
+
+        /* ========== 内容区域(可根据需要自定义) ========== */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* 隐藏滚动条但保留功能 */
+        .content-area::-webkit-scrollbar { 
+            display: none; 
+        }
+        .content-area {
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- ========== 状态栏 ========== -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span style="display:flex; gap:6px; align-items:center;">
+                <!-- 信号强度图标 -->
+                <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+                    <rect x="0" y="9" width="2.5" height="3" rx="0.5"/>
+                    <rect x="4" y="6" width="2.5" height="6" rx="0.5"/>
+                    <rect x="8" y="3" width="2.5" height="9" rx="0.5"/>
+                    <rect x="12" y="0" width="2.5" height="12" rx="0.5"/>
+                </svg>
+                
+                <!-- WiFi 图标 -->
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                    <path d="M8 10.5 C7.17 10.5 6.5 11.17 6.5 12 C6.5 12.83 7.17 13.5 8 13.5 C8.83 13.5 9.5 12.83 9.5 12 C9.5 11.17 8.83 10.5 8 10.5Z" transform="translate(0,-3)"/>
+                    <path d="M8 7 C6.07 7 4.25 7.65 2.79 8.79 L4.21 10.21 C5.31 9.43 6.61 9 8 9 C9.39 9 10.69 9.43 11.79 10.21 L13.21 8.79 C11.75 7.65 9.93 7 8 7Z" transform="translate(0,-3)" opacity="0.7"/>
+                    <path d="M8 3 C5.24 3 2.64 3.98 0.64 5.64 L2.06 7.06 C3.68 5.78 5.77 5 8 5 C10.23 5 12.32 5.78 13.94 7.06 L15.36 5.64 C13.36 3.98 10.76 3 8 3Z" transform="translate(0,-3)" opacity="0.4"/>
+                </svg>
+                
+                <!-- 电量图标 -->
+                <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                    <rect x="1" y="2" width="20" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M22 4.5 L22 7.5 C23 7.5 23.5 6.5 23.5 6 C23.5 5.5 23 4.5 22 4.5Z" fill="currentColor"/>
+                    <rect x="2.5" y="3.5" width="15" height="5" rx="1" fill="currentColor"/>
+                </svg>
+            </span>
+        </div>
+
+        <!-- ========== 内容区域(在此添加您的页面内容) ========== -->
+        <div class="content-area">
+            <h1 style="color: var(--text-main); margin-bottom: 20px;">自定义页面内容</h1>
+            <p style="color: var(--text-secondary); line-height: 1.6;">
+                请将此区域替换为您自己的内容。<br>
+                手机容器会自动适配，提供标准的 iPhone 13 Pro 尺寸(390x844px)。
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
