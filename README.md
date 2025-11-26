@@ -4,7 +4,7 @@
 
 项目重点: 帮助笔者/读者在使用Gemini3等大模型时，快速调用手机容器模版。
 
-Google AI Studio与Gemini3交互的关键prompt:
+**Google AI Studio与Gemini3交互的关键prompt:**
 
 ```txt
 请参考`phone_template.html`手机容器文件实现岗位推荐界面，请提供给我纯 HTML+CSS+Js 的完整可运行Demo。
