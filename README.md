@@ -213,3 +213,34 @@ card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
 - 固定手机尺寸容器
 - 百分比布局适配内容
 - Flexbox弹性布局
+
+## 附录-手机容器模版
+
+本项目提供了[手机容器模版](phone_template.html#L116)，便于大家利于该模板快速嵌入自己的界面，使用方法如下:
+
+```html
+<!-- 只需将 .content-area 中的内容替换为您的页面内容 -->
+<div class="content-area">
+    <!-- 您的自定义内容 -->
+</div>
+```
+
+## Markdown 中跳转到特定行的语法:
+
+1. 单行跳转:
+
+```markdown
+[链接文本](文件名#L行号)
+```
+
+2. 行范围跳转:
+
+```markdown
+[链接文本](文件名#L行号-L行号)
+```
+
+例如:
+
+```markdown
+[手机容器模版](phone_template.html#L116-L120)
+```
