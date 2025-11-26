@@ -10,6 +10,14 @@
 请参考`phone_template.html`手机容器文件实现岗位推荐界面，请提供给我纯 HTML+CSS+Js 的完整可运行Demo。
 ```
 
+**效果演示:**
+
+<video width="100%" controls>
+  <source src="data/plan.mp4" type="video/mp4">
+  您的浏览器不支持视频播放。
+</video>
+
+
 - [岗位推荐界面html模板](#岗位推荐界面html模板)
   - [📱 项目简介](#-项目简介)
   - [✨ 功能特点](#-功能特点)
