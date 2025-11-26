@@ -10,7 +10,7 @@
 
 ## ✨ 功能特点
 
-### 垂直时间轴视图 (垂直.html)
+### 垂直时间轴视图 (main.html)
 - **流式加载动画**：职位卡片逐个出现，模拟实时推荐效果
 - **时间轴设计**：中央连接线 + 动态进度条，视觉效果出色
 - **智能布局**：职位卡片左右交替排列，充分利用空间
@@ -21,7 +21,7 @@
 - **详情弹窗**：点击卡片查看职位详细信息
 - **实时状态提示**：显示当前正在分析的职位
 
-### 列表视图 (list.html)
+### 列表视图 (sub_in.html)
 - **卡片式布局**：清晰展示职位核心信息
 - **完整信息展示**：
   - 职位名称和级别
@@ -56,9 +56,9 @@
 ## 📁 项目结构
 
 ```
-new/
-├── 垂直.html          # 垂直时间轴视图页面
-├── list.html          # 列表视图页面
+job-match-html/
+├── main.html          # 垂直时间轴视图页面
+├── sub_in.html        # 列表视图页面
 └── README.md          # 项目说明文档
 ```
 
@@ -68,28 +68,16 @@ new/
 
 1. **克隆或下载项目**
    ```bash
-   git clone <repository-url>
-   cd new
+   git clone git@github.com:peilongchencc/job-match-html.git
+   cd job-match-html
    ```
 
 2. **直接打开HTML文件**
-   - 双击 `垂直.html` 在浏览器中打开
-
-3. **访问页面**
-   - 垂直视图：`http://localhost:8000/垂直.html`
-   - 列表视图：`http://localhost:8000/list.html`
-
-### 浏览器要求
-
-- Chrome/Edge 88+
-- Safari 14+
-- Firefox 85+
-
-*建议使用Chrome或Edge浏览器以获得最佳体验*
+   - 双击 `main.html` 在浏览器中打开访问页面
 
 ## 📄 页面说明
 
-### 垂直.html - 时间轴视图
+### main.html - 时间轴视图
 
 **核心特性**：
 - 12个职位推荐数据
@@ -115,7 +103,7 @@ new/
 4. 浮动提示（加载状态）
 5. 详情弹窗（职位详情）
 
-### list.html - 列表视图
+### sub_in.html - 列表视图
 
 **核心特性**：
 - 5个精选职位推荐
@@ -162,7 +150,7 @@ new/
 
 ### 修改职位数据
 
-**垂直视图**（垂直.html，第364-378行）：
+**垂直视图**（main.html，第364-378行）：
 ```javascript
 const jobData = [
     { title: "职位名", company: "公司名", salary: "薪资", score: 分数 },
@@ -170,7 +158,7 @@ const jobData = [
 ];
 ```
 
-**列表视图**（list.html，第292-328行）：
+**列表视图**（sub_in.html，第292-328行）：
 ```javascript
 const recommendations = [
     {
@@ -198,12 +186,12 @@ const recommendations = [
 
 ### 调整动画速度
 
-**垂直视图加载间隔**（垂直.html，第418行）：
+**垂直视图加载间隔**（main.html，第418行）：
 ```javascript
 const delay = Math.floor(Math.random() * 500) + 400; // 400-900ms随机间隔
 ```
 
-**列表视图入场延迟**（list.html，第350行）：
+**列表视图入场延迟**（sub_in.html，第350行）：
 ```javascript
 card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
 ```
@@ -225,30 +213,3 @@ card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
 - 固定手机尺寸容器
 - 百分比布局适配内容
 - Flexbox弹性布局
-
-## 📝 待优化功能
-
-- [ ] 添加职位搜索和筛选功能
-- [ ] 支持职位收藏和标记
-- [ ] 接入真实后端API
-- [ ] 添加分页加载
-- [ ] 支持多设备尺寸适配
-- [ ] 添加分享功能
-- [ ] 数据持久化（localStorage）
-- [ ] 添加单元测试
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request 来改进这个项目！
-
-## 📄 许可证
-
-MIT License
-
----
-
-**开发日期**：2025年11月  
-**版本**：v1.0.0  
-**设计风格**：现代简约 | 移动优先  
-**适用场景**：职位推荐、招聘展示、UI设计参考
-
