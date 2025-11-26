@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>岗位推荐 - 2025</title>
+    <style>
+        :root {
+            --primary-blue: #2563EB;
+            --bg-color: #F8FAFC;
+            --line-color: #CBD5E1;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-secondary: #64748B;
+            --high-score: #059669; /* 绿色 */
+            --med-score: #2563EB;  /* 蓝色 */
+            --low-score: #D97706;  /* 橙色 */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; }
+
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* 手机外壳 */
+        .app-container {
+            width: 100%;
+            max-width: 390px;
+            height: 844px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #FFFFFF 100%);
+            position: relative;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            z-index: 100;
+        }
+
+        /* 头部 */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px 15px 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .header h1 { font-size: 20px; color: var(--text-main); font-weight: 800; }
+        .header-status { font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .pulse-dot { width: 8px; height: 8px; background: var(--primary-blue); border-radius: 50%; animation: pulse 1s infinite; }
+
+        /* --- 核心路径容器 --- */
+        .timeline-container {
+            padding: 20px 16px 80px 16px; /* 底部留出空间 */
+            position: relative;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            /* 隐藏滚动条但保留功能 */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .timeline-container::-webkit-scrollbar { display: none; }
+
+        /* 中央连接线 */
+        .center-line {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            bottom: 20px;
+            width: 2px;
+            background: rgba(37, 99, 235, 0.15);
+            transform: translateX(-50%);
+            z-index: 0;
+            transition: height 0.3s;
+        }
+        
+        /* 动态生长的进度条线 */
+        .active-line {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary-blue), rgba(37, 99, 235, 0.5));
+            transform: translateX(-50%);
+            z-index: 0;
+            height: 0; /* JS控制高度 */
+            transition: height 0.5s linear;
+            box-shadow: 0 0 12px rgba(37,99,235,0.5);
+        }
+
+        /* 节点包装器 */
+        .node-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center; /* 默认居中，利用 absolute 定位左右 */
+            align-items: center;
+            margin-bottom: 24px;
+            opacity: 0; /* 初始隐藏 */
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 80px; /* 占位高度 */
+        }
+
+        /* 中央节点点 */
+        .node-dot {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 3px solid var(--primary-blue);
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 1); /*以此模拟边距，遮挡线条*/
+        }
+        .node-wrapper.high-score .node-dot { border-color: var(--high-score); }
+
+        /* 卡片本体 */
+        .job-card {
+            position: absolute;
+            width: 46%; /* 左右各占不到一半 */
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+            text-align: left;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            z-index: 5;
+        }
+        .job-card:active { 
+            transform: scale(0.96); 
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 左右布局逻辑 */
+        .node-wrapper:nth-child(odd) .job-card {
+            left: 0;
+            /* 连线 - 右侧 */
+        }
+        .node-wrapper:nth-child(even) .job-card {
+            right: 0;
+            /* 连线 - 左侧 */
+        }
+
+        /* 连接短线 */
+        .connector {
+            position: absolute;
+            height: 2px;
+            background: rgba(37, 99, 235, 0.2);
+            width: 15px; /* 从中间点延伸的长度 */
+            top: 50%;
+            z-index: 1;
+        }
+        .node-wrapper:nth-child(odd) .connector { left: 42%; width: 8%; } /* 简单适配 */
+        .node-wrapper:nth-child(even) .connector { right: 42%; width: 8%; }
+
+        /* 卡片内容样式 */
+        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 6px; }
+        .job-title { font-size: 13px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+        
+        .score-badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 5px;
+            border-radius: 6px;
+            background: #F1F5F9;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+        /* 高分高亮 */
+        .node-wrapper.high-score .score-badge { color: var(--high-score); background: #ECFDF5; }
+        
+        .card-detail { font-size: 11px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 2px; }
+        .salary { color: #F97316; font-weight: 600; font-size: 12px; }
+        .company { opacity: 0.8; }
+
+        /* 正在生成的提示 */
+        .scanning-tip {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: opacity 0.3s;
+        }
+
+        /* 底部详情面板 (保持一致性) */
+        .detail-modal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            transform: translateY(110%);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 300;
+        }
+        .detail-modal.show { transform: translateY(0); }
+        .detail-modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 299;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border-radius: 40px; /* 配合手机容器的圆角 */
+        }
+        .detail-modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+        /* 列表视图按钮样式 */
+        .list-view-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            color: var(--primary-blue);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .list-view-btn:hover {
+            background: rgba(37, 99, 235, 0.12);
+            border-color: rgba(37, 99, 235, 0.25);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+        }
+        .list-view-btn:active {
+            transform: scale(0.95);
+            background: rgba(37, 99, 235, 0.15);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span style="display:flex; gap:6px; align-items:center;">
+                <!-- 信号强度 -->
+                <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+                    <rect x="0" y="9" width="2.5" height="3" rx="0.5"/>
+                    <rect x="4" y="6" width="2.5" height="6" rx="0.5"/>
+                    <rect x="8" y="3" width="2.5" height="9" rx="0.5"/>
+                    <rect x="12" y="0" width="2.5" height="12" rx="0.5"/>
+                </svg>
+                <!-- WiFi -->
+                <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor">
+                    <path d="M8 10.5 C7.17 10.5 6.5 11.17 6.5 12 C6.5 12.83 7.17 13.5 8 13.5 C8.83 13.5 9.5 12.83 9.5 12 C9.5 11.17 8.83 10.5 8 10.5Z" transform="translate(0,-3)"/>
+                    <path d="M8 7 C6.07 7 4.25 7.65 2.79 8.79 L4.21 10.21 C5.31 9.43 6.61 9 8 9 C9.39 9 10.69 9.43 11.79 10.21 L13.21 8.79 C11.75 7.65 9.93 7 8 7Z" transform="translate(0,-3)" opacity="0.7"/>
+                    <path d="M8 3 C5.24 3 2.64 3.98 0.64 5.64 L2.06 7.06 C3.68 5.78 5.77 5 8 5 C10.23 5 12.32 5.78 13.94 7.06 L15.36 5.64 C13.36 3.98 10.76 3 8 3Z" transform="translate(0,-3)" opacity="0.4"/>
+                </svg>
+                <!-- 电量 -->
+                <svg width="26" height="12" viewBox="0 0 26 12" fill="none">
+                    <rect x="1" y="2" width="20" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M22 4.5 L22 7.5 C23 7.5 23.5 6.5 23.5 6 C23.5 5.5 23 4.5 22 4.5Z" fill="currentColor"/>
+                    <rect x="2.5" y="3.5" width="15" height="5" rx="1" fill="currentColor"/>
+                </svg>
+            </span>
+        </div>
+
+        <!-- 头部 -->
+        <div class="header">
+            <div>
+                <h1>岗位推荐</h1>
+                <div class="header-status">
+                    <div class="pulse-dot"></div>
+                    <span id="statusText">正在为您分析高匹配职位...</span>
+                </div>
+            </div>
+            <!-- 列表视图按钮 -->
+            <button onclick="window.location.href='list.html'" class="list-view-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                <span>列表</span>
+            </button>
+        </div>
+
+        <!-- 核心路径区域 -->
+        <div class="timeline-container" id="timelineContainer">
+            <div class="center-line"></div>
+            <div class="active-line" id="activeLine"></div>
+            
+            <!-- 节点将通过 JS 插入到这里 -->
+        </div>
+
+        <!-- 底部浮动提示 -->
+        <div class="scanning-tip" id="scanTip">
+            <div class="pulse-dot" style="background:#fff"></div>
+            <span>正在为您分析高匹配职位...</span>
+        </div>
+
+        <!-- 详情弹窗 -->
+        <div class="detail-modal-overlay" id="overlay"></div>
+        <div class="detail-modal" id="modal">
+            <!-- 关闭把手 -->
+            <div style="width:40px; height:4px; background:#E2E8F0; border-radius:2px; margin:0 auto 20px auto;"></div>
+            <h2 id="modalTitle" style="font-size:18px; margin-bottom:8px;">职位详情</h2>
+            <div id="modalContent" style="color:#64748B; font-size:14px; line-height:1.6;"></div>
+            <button onclick="closeModal()" style="width:100%; margin-top:20px; padding:14px; background:#2563EB; color:#fff; border:none; border-radius:12px; font-weight:600; font-size:16px;">查看详情</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. 生成 12 个模拟数据
+        const jobData = [
+            { title: "高级UI设计师", company: "美团点评", salary: "25-35K", score: 98 },
+            { title: "AIGC产品经理", company: "字节跳动", salary: "40-60K", score: 95 },
+            { title: "用户体验专家", company: "京东科技", salary: "30-50K", score: 93 },
+            { title: "前端架构师", company: "蚂蚁集团", salary: "45-70K", score: 91 },
+            { title: "创意视觉总监", company: "小红书", salary: "50-80K", score: 89 },
+            { title: "资深交互设计", company: "腾讯", salary: "28-40K", score: 87 },
+            { title: "增长产品经理", company: "拼多多", salary: "35-55K", score: 85 },
+            { title: "Web前端开发", company: "得物", salary: "20-30K", score: 82 },
+            { title: "数据可视化", company: "阿里云", salary: "25-40K", score: 80 },
+            { title: "新媒体运营", company: "网易", salary: "15-25K", score: 78 },
+            { title: "品牌设计师", company: "蔚来汽车", salary: "20-30K", score: 75 },
+            { title: "UI设计师", company: "米哈游", salary: "18-28K", score: 72 }
+        ];
+
+        const container = document.getElementById('timelineContainer');
+        const activeLine = document.getElementById('activeLine');
+        const scanTip = document.getElementById('scanTip');
+        const statusText = document.getElementById('statusText');
+
+        let currentIndex = 0;
+        
+        // 自动滚动到底部
+        function scrollToBottom() {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // 流式生成逻辑
+        function streamNext() {
+            if (currentIndex >= jobData.length) {
+                scanTip.style.opacity = '0'; // 隐藏提示
+                statusText.innerText = "分析完成";
+                document.querySelector('.pulse-dot').style.animation = 'none';
+                return;
+            }
+
+            const item = jobData[currentIndex];
+            createNode(item, currentIndex);
+
+            // 更新提示文案
+            scanTip.querySelector('span').innerText = `发现推荐: ${item.company} - ${item.title}`;
+
+            // 更新进度线高度 (估算每个节点高度约 104px)
+            const lineHeight = (currentIndex + 1) * 104; 
+            activeLine.style.height = `${lineHeight}px`;
+
+            currentIndex++;
+            scrollToBottom();
+
+            // 随机时间间隔，模拟思考
+            const delay = Math.floor(Math.random() * 500) + 400; 
+            setTimeout(streamNext, delay);
+        }
+
+        function createNode(item, index) {
+            const wrapper = document.createElement('div');
+            
+            // 判断高分样式
+            const isHigh = item.score >= 90;
+            wrapper.className = `node-wrapper ${isHigh ? 'high-score' : ''}`;
+            
+            // 决定颜色
+            let scoreColor = 'var(--low-score)';
+            if(item.score >= 90) scoreColor = 'var(--high-score)';
+            else if(item.score >= 80) scoreColor = 'var(--med-score)';
+
+            wrapper.innerHTML = `
+                <div class="connector"></div>
+                <div class="node-dot"></div>
+                <div class="job-card" onclick="openModal('${item.title}', '${item.company}', '${item.salary}', ${item.score})">
+                    <div class="card-header">
+                        <div class="job-title">${item.title}</div>
+                        <div class="score-badge" style="color:${scoreColor}">${item.score}%</div>
+                    </div>
+                    <div class="card-detail">
+                        <span class="company">${item.company}</span>
+                        <span class="salary">${item.salary}</span>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(wrapper);
+
+            // 强制重绘后执行入场动画
+            requestAnimationFrame(() => {
+                wrapper.style.opacity = '1';
+                wrapper.style.transform = 'translateY(0)';
+            });
+        }
+
+        // 弹窗逻辑
+        const modal = document.getElementById('modal');
+        const overlay = document.getElementById('overlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+
+        window.openModal = function(title, company, salary, score) {
+            modalTitle.innerText = title;
+            modalContent.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>匹配度</span>
+                    <span style="font-weight:bold; color:#2563EB">${score}%</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>薪资范围</span>
+                    <span style="font-weight:bold; color:#F97316">${salary}</span>
+                </div>
+                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span>公司</span>
+                    <span style="font-weight:bold;">${company}</span>
+                </div>
+                <p style="margin-top:10px; font-size:12px;">该岗位与您的职业规划在技能栈和发展路径上高度重合。</p>
+            `;
+            modal.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        window.closeModal = function() {
+            modal.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        overlay.addEventListener('click', closeModal);
+
+        // 启动
+        setTimeout(streamNext, 500);
+
+    </script>
+</body>
+</html>
